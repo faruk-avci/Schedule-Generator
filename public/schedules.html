@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedules</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 0px 40px;
+            background-color: #01121c;
+            margin: 0;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 40px;
+            color: #fff;
+
+        }
+        .schedule {
+            margin-bottom: 40px;
+            padding: 20px;
+            background-image: linear-gradient(to right, #31146b, #4d0f8e);
+            border-radius: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: #fff;
+        }
+        .schedule h2 {
+            margin-top: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            color: #fff;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #000000;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        tr:nth-child(even) {
+            background-color: #085936 !important;
+        }
+        tr:nth-child(odd) {
+            background-color: #4caf50 !important;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 14px;
+            color: #555;
+        }
+        .general-info{
+            border-radius: 25px;
+            padding: 20px 20px;
+            background-image: linear-gradient(to right, #009aca, #19d2fd);
+            margin-bottom: 30px;
+        }
+        #selected-lessons{
+            display: flex !important;
+            align-items: center;            
+        }
+        #selected-lessons h3{
+            margin-right: 10px;
+            padding: 10px;
+            background-color: #f2f2f2;
+            border-radius: 5px;
+            font-size: 19px;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+        .selected-lessons-alt {
+            margin: 0 10px 0 0;
+            padding: 10px;
+            background-color: #f2f2f2;
+            border-radius: 5px;
+            font-size: 19px;
+        }
+        .selected-table {
+            width: auto;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        #credit-lesson{
+            color: #fff;
+            display: flex;
+            align-items: center;
+        }
+        #credit-lesson p{
+            margin: 8px 10px 0px 0;
+            margin-right: 10px;
+            padding: 10px;
+            background-color: #f2f2f2;
+            border-radius: 5px;
+            font-size: 19px;      
+            color: #000;
+            
+     }          
+    </style>
+</head>
+<body>
+    <h1  >Generated Schedules</h1>
+    
+    <div class="general-info">
+        <div id="selected-lessons">
+            <h3>Seçilen Dersler:</h3>
+        </div>
+        <div id="credit-lesson"></div>
+    </div>
+
+    <div id="schedules-container"></div>
+
+
+    <script>
+        
+    document.addEventListener('DOMContentLoaded', function() {
+        const schedules = JSON.parse(localStorage.getItem('schedules'));
+
+        if (schedules && schedules.length > 0) {
+            const container = document.getElementById('schedules-container');
+            schedules.forEach(schedule => {
+                const scheduleElement = document.createElement('div');
+                scheduleElement.classList.add('schedule');
+                scheduleElement.innerHTML = `
+                    <h2>Schedule ID: ${schedule.id}</h2>
+                    <div >Sabah yoğunluk oranı: ${schedule.weight_of_morning}</div>
+                    <div>Gün yoğunluk oranı: ${schedule.weight_of_day}</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Zaman</th>
+                                <th>Pazartesi</th>
+                                <th>Salı</th>
+                                <th>Çarşamba</th>
+                                <th>Perşembe</th>
+                                <th>Cuma</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${generateTableRows(schedule.schedule)}
+                        </tbody>
+                    </table>
+                `;
+                container.appendChild(scheduleElement);
+            });
+        } else {
+            document.getElementById('schedules-container').innerText = 'Herhangi bir ders programı oluşturulamadı.';
+        }
+
+        // Fetch and display selected lessons
+        displaySelectedLessons();
+        displayCreditLesson();
+    });
+
+    function generateTableRows(schedule) {
+        // Define time slots from 8:40 to 20:40
+        const timeSlots = [
+            '08:40', '09:40', '10:40', '11:40', '12:40', '13:40',
+            '14:40', '15:40', '16:40', '17:40', '18:40', '19:40', '20:40'
+        ];
+
+        // Transpose the schedule data
+        const transposedSchedule = timeSlots.map((_, colIndex) => 
+            schedule.map(row => row[colIndex])
+        );
+
+        // Generate table rows
+        return transposedSchedule.map((row, index) => `
+            <tr>
+                <td>${timeSlots[index]}</td>
+                ${row.map(cell => `<td>${cell === '-' ? '' : cell}</td>`).join('')}
+            </tr>
+        `).join('');
+    }
+
+    function displaySelectedLessons() {
+            const selectedLessonsCon = document.getElementById('selected-lessons');
+
+            fetch('/get-added-courses', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Use 'courses' property directly from response
+                const lessons = data.courses || [];
+
+                if (lessons.length > 0) {
+                    lessons.forEach(lesson => {
+                        const lessonElement = document.createElement('p');
+                        lessonElement.classList.add('selected-lessons-alt');
+                    
+                        lessonElement.innerHTML = `
+                            ${lesson.course_name} - ${lesson.credits}
+                        `;
+
+                        selectedLessonsCon.appendChild(lessonElement);
+
+                    });
+
+                } else {
+                    selectedLessonsCon.innerHTML = `
+                        <p>No lessons selected.</p>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+        
+    function displayCreditLesson() {
+        const creditLessonCon = document.getElementById('credit-lesson');
+                
+        fetch('/get-total-credit-lesson', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            
+            const totalCredit = document.createElement('p');
+
+            const totalLesson = document.createElement('p');
+
+            const totalSchedule = document.createElement('p');
+
+            const schedulesLength = JSON.parse(localStorage.getItem('schedules')).length;
+
+            totalCredit.innerHTML = `
+                Toplam Kredi: ${data.totalCredits}
+            `;
+            totalLesson.innerHTML = `
+                Toplam Ders: ${data.totalLesson}
+            `;
+
+            totalSchedule.innerHTML = `
+                Toplam Program: ${schedulesLength}
+            `;
+
+            creditLessonCon.appendChild(totalCredit);
+            creditLessonCon.appendChild(totalLesson);
+            creditLessonCon.appendChild(totalSchedule);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    </script>   
+</body>
+</html>

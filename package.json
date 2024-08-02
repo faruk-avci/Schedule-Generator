@@ -1,0 +1,16 @@
+{
+  "name": "shceulerke",
+  "version": "1.0.0",
+  "description": "ilk deneme",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "aseris",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2",
+    "sqlite3": "^5.1.7"
+  }
+}

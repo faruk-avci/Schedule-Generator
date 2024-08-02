@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Generator</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/x-icon" href="">
+</head>
+
+<body>
+
+    <div id="toastContainer"></div>
+
+    <div class="promotion">
+        <h1>Schedule Generator</h1>
+        <div id="how_it_works">
+            <h3>Nasıl Çalışır?</h3>
+            <p>
+                Bu site Özyeğin Üniversitesi öğrencileri için dönemlik ders programlarını hazırlamalarına yardımcı olmak için yapılmıştır. Aşağı kısımda bu dönem alacağınız derslerinizi bulabilir ve onları listenize ekleyebilirsiniz. Daha sonra "Oluştur" butonuna basarak seçilen dersler için muhtemel tüm ders programlarını görebilir ve onları çeşitli kriterlere göre sıralayabilirsiniz.
+            </p>
+        </div>
+        <div class="two_boxes">
+            <div id="box_1">
+                <h3>Özellikler:</h3>
+                <ul>
+                    <li>Lisans seviyesindeki tüm ÖzÜ öğrencilerine uygun</li>
+                    <li>Kolaylaştılımış ve hızlı ders programı hazılama</li>
+                    <li>Sabah yoğunluğuna ve gün yoğunluğuna göre sıralama</li>
+                    <li>İstediğiniz ders programını anında resim olarak indirme</li>
+                    <li><a target="_blank" href="https://github.com/faruk-avci/Schedule-Generator" style="color: #fff;">Açık kaynak</a> ve kullanımı ücretsiz :)</li>
+                </ul>
+            </div>
+            <div id="box_2">
+                <h3>Dikkat:</h3>
+                <ul>
+                    <li>Staj ve Bitirme Proje dersleri dahil edilmemiştir.</li>
+                    <li>Bazı derslerin ve Labların çok sayıda şubesi olduğundan çok bu dersleri seçmeniz durumunda çok sayıda program ile karşılaşabilirsiniz. Bu durumda çok şubeli dersleri çıkarmanız tavsiye edilir.</li>
+                    <li> Ders seçimlerinizi yaparken ön koşul ya da yan koşul şartlarına dikkat ediniz çünkü program ön koşullara ve yan koşullara dikkat etmemektedir.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="actualProgram">
+        <div class="searchAndDisplayArea">
+            <div class="searchArea">
+                <form id="searchForm">
+                    <p>Ders Ara:</p>
+                    <input name="courseName" type="text" id="searchInput" placeholder="Ex: BUS101">
+                    <button type="button" onclick="searchLessons()">Ara</button>
+                    <button type="button" onclick="clearResults()">Temizle</button>
+                </form>
+            </div>
+            <div class="CreditLesson">
+                <div>
+                    <h3>Toplam Kredi: <span id="totalCredits">0</span></h3>
+                    <h3>Toplam Ders: <span id="totalLessons">0</span></h3>
+                </div>
+                <div class="generate-class">
+                    <button class="generate" id="generate" type="button" onclick="generateSchedules()">Oluştur</button>
+                </div>
+            </div>
+        </div>
+    
+    <div class="resultAndAddeds">
+        <div id="results">
+
+        </div>
+        <div id="addedCourses">
+            
+        </div>
+    </div>  
+    </div>
+
+    <script>
+        // Search And Display And Clear
+        function searchLessons() {
+            const courseName = document.getElementById('searchInput').value;
+
+            if (!courseName) {
+                showToast('Lütfen ders adı girin!', 'error');
+                return;
+            }
+
+            fetch('/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ courseName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayResultCourses(data.courses);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+       
+        function displayResultCourses(courses) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = ''; // Clear previous results
+
+            if (courses.length === 0) {
+                resultsDiv.innerHTML = '<p>Sonuç Bulunamadı</p>';
+                return;
+            }
+
+            courses.forEach(course => {
+                // Create a container div for each course
+                const courseDiv = document.createElement('div');
+                courseDiv.classList.add('course-item');
+
+                // Create text content for the course
+                const courseText = document.createElement('span');
+                courseText.textContent = `${course.course_name} Kredi: ${course.credits} `;
+                courseDiv.appendChild(courseText);
+
+                // Create the "Add" button
+                const addButton = document.createElement('button');
+                addButton.textContent = 'Ekle';
+                addButton.onclick = () => addCourse(course);
+                courseDiv.appendChild(addButton);
+
+                const addSectionButton = document.createElement('button');
+                addSectionButton.textContent = 'Şube Seç';
+
+                // TODO
+
+
+                
+                resultsDiv.appendChild(courseDiv);
+            });
+        }
+        
+        function clearResults(){
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = ''; // Clear previous results
+
+            const searchInput = document.getElementById('searchInput');
+            searchInput.value = '';
+        }
+    
+        // Add Remove Course And Display
+        function calculate_total_credit_and_lesson(){
+            const total_credit = document.getElementById('totalCredits');
+            const total_lesson = document.getElementById('totalLessons')
+            fetch('/get-total-credit-lesson', {
+            method: 'GET',
+            headers: {
+            'Content-Type': 'application/json'
+            }
+            })
+            .then(response => response.json())
+            .then(data => {
+            // Set the total credits from the server response
+            total_credit.textContent = data.totalCredits || 0;
+            total_lesson.textContent = data.totalLesson || 0;
+            
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function addCourse(course) {
+            fetch('/add-course', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    courseName: course.course_name,
+                    credits: course.credits
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(`${course.course_name} başarıyla eklendi!`, 'added');
+                } else {
+                    showToast(data.error || 'Hata', 'error');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+            fetch('/get-added-courses',{
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayAddedCourses(data.courses);
+            })
+            .catch(error => console.error('Error:', error));
+            
+        }
+
+        function removeCourse(course){
+            fetch('/remove-course', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    courseName: course.course_name,
+                    credits: course.credits
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(`${course.course_name} başarıyla çıkartıldı!`, 'error');
+                } else {
+                    showToast(data.error || 'Hata.', 'error');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+            fetch('/get-added-courses',{
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayAddedCourses(data.courses);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        
+        function displayAddedCourses(courses) {
+            calculate_total_credit_and_lesson()
+            const addedCoursesDiv = document.getElementById('addedCourses');
+            addedCoursesDiv.innerHTML = ''; // Clear previous results
+
+            if (courses.length === 0) {
+                addedCoursesDiv.innerHTML = '<p>No courses added</p>';
+                return;
+            }
+
+            courses.forEach(course => {
+                // Create a container div for each course
+                const courseDiv = document.createElement('div');
+                courseDiv.classList.add('course-item');
+
+                // Create text content for the course
+                const courseText = document.createElement('span');
+                courseText.textContent = `${course.course_name} Kredi: ${course.credits} `;
+                courseDiv.appendChild(courseText);
+
+                // Create the "Add" button
+                const addButton = document.createElement('button');
+                addButton.textContent = 'Kaldır';
+                addButton.onclick = () => removeCourse(course);
+                courseDiv.appendChild(addButton);
+                
+                
+                addedCoursesDiv.appendChild(courseDiv);
+            });
+        }
+
+        function showToast(message, type) {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+
+            // Append to toast container
+            const container = document.getElementById('toastContainer');
+            container.appendChild(toast);
+
+            // Show toast
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10); // Delay to trigger transition
+
+            // Hide toast after a delay
+            setTimeout(() => {
+                toast.classList.add('fadeOut');
+                setTimeout(() => {
+                    container.removeChild(toast);
+                }, 400); // Match the duration of fadeOut transition
+            }, 3000); // Duration for which the toast is visible
+        }
+
+        window.onload = function() {
+            fetch('/get-added-courses',{
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayAddedCourses(data.courses);
+            })
+            .catch(error => console.error('Error:', error));
+
+            calculate_total_credit_and_lesson(); // Update total credits and lessons
+
+    };
+
+        function generateSchedules() {
+            fetch('/get-added-courses', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const addedCourses = data.courses;
+                fetch('/generate-schedules', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        lessons: addedCourses.map(course => course.course_name)
+                    })
+                })
+                .then(response => response.json())
+                .then(schedules => {
+                    // Store schedules in local storage
+                    localStorage.setItem('schedules', JSON.stringify(schedules));
+                    // Redirect to the schedules page in new tab
+                    window.open('/schedules.html');
+                })
+                .catch(error => {
+                    console.error('Error generating schedules:', error);
+                    showToast('Error generating schedules', 'error');
+                });
+            })
+            .catch(error => console.error('Error fetching added courses:', error));
+        }
+    </script>
+</body>
+
+</html>

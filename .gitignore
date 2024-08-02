@@ -1,0 +1,26 @@
+# Node.js dependencies
+node_modules/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Logs
+logs/
+*.log
+
+# Database files
+*.db
+
+# CSV files
+*.csv
+
+# Environment variables
+.env
+
+# VS Code settings
+.vscode/
+
+
+# Windows files
+Thumbs.db
