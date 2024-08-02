@@ -74,6 +74,9 @@
     </div>  
     </div>
 
+    <div class="footer">
+        <p>Coded by <i>Faruk Avcı</i> | İletişim <a href="mailto:faruk.avci@ozu.edu.tr" style="color: #fff;">faruk.avci@ozu.edu.tr</a> </p>
+    </div>
     <script>
         // Search And Display And Clear
         function searchLessons() {
@@ -108,23 +111,21 @@
             }
 
             courses.forEach(course => {
-                // Create a container div for each course
                 const courseDiv = document.createElement('div');
                 courseDiv.classList.add('course-item');
 
-                // Create text content for the course
                 const courseText = document.createElement('span');
                 courseText.textContent = `${course.course_name} Kredi: ${course.credits} `;
                 courseDiv.appendChild(courseText);
 
-                // Create the "Add" button
+
+                
                 const addButton = document.createElement('button');
                 addButton.textContent = 'Ekle';
                 addButton.onclick = () => addCourse(course);
                 courseDiv.appendChild(addButton);
 
-                const addSectionButton = document.createElement('button');
-                addSectionButton.textContent = 'Şube Seç';
+                
 
                 // TODO
 

@@ -108,7 +108,19 @@
             font-size: 19px;      
             color: #000;
             
-     }          
+     }    
+     
+     .footer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-image: linear-gradient(to right, #011320, #04262e);
+        color: #ffffff;
+        padding: 20px;
+        border-radius: 30px;
+        margin-bottom: 12px;
+        font-size: 18px;
+}
     </style>
 </head>
 <body>
@@ -122,8 +134,9 @@
     </div>
 
     <div id="schedules-container"></div>
-
-
+    <div class="footer">
+        <p>Coded by <i>Faruk Avcı</i> | İletişim <a href="mailto:faruk.avci@ozu.edu.tr" style="color: #fff;">faruk.avci@ozu.edu.tr</a> </p>
+    </div>
     <script>
         
     document.addEventListener('DOMContentLoaded', function() {
