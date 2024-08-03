@@ -143,11 +143,10 @@ body {
     padding: 35px 0;
 }
 .searchArea{
-    display: flex;
-    justify-content: left;
-    align-items: center;
+
     width: 50%;
 }
+
 .searchArea input[type="text"], .searchArea button {
     padding: 15px;
     font-size: 19px;
@@ -155,6 +154,11 @@ body {
     border-radius: 5px;
 }
 
+#searchForm{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .searchArea button {
     background-color: #4CAF50;
     color: white;
@@ -166,6 +170,9 @@ body {
     padding: 0 25px;
     font-size: 19px;
     font-weight: 700;
+}
+.form-buttons button{
+    margin-left: 10px;
 }
 
 .CreditLesson{
@@ -310,6 +317,12 @@ padding: 0 10px;
 
         border-radius: 30px;
 
+    }
+    #searchForm{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
     }
     .form-buttons{
         display: flex;

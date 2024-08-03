@@ -2,7 +2,6 @@ import sqlite3
 import numpy as np
 import json
 import sys
-import shlex
 
 selected_lessons = [ "CS105","MATH104" , "IE101"]
 
