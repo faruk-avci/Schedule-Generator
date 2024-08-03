@@ -222,5 +222,5 @@ if __name__ == "__main__":
     taken_lessons = sys.argv[1:]
     format_les = taken_lessons[0].split(" ")
     last_valids = generate_schedules_m(format_les)
-    formatted_schedules = [{"id": idx,"weight_of_morning":0, "weight_of_day":0, "schedule": schedule} for idx, schedule in enumerate(last_valids)]
+    formatted_schedules = [{"id": idx,"schedule": schedule} for idx, schedule in enumerate(last_valids)]
     print(json.dumps(formatted_schedules, indent=4))

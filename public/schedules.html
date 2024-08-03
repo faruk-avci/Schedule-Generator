@@ -98,6 +98,8 @@
             color: #fff;
             display: flex;
             align-items: center;
+            overflow: auto;
+
         }
         #credit-lesson p{
             margin: 8px 10px 0px 0;
@@ -109,7 +111,17 @@
             color: #000;
             
      }    
-     
+     .download{
+        padding: 10px 15px;
+        background-color: #f2f2f2;
+        border-radius: 5px;
+        font-size: 16px;
+        color: #000;
+        cursor: pointer;
+        border: none;
+        margin-bottom: 10px;
+        margin-top: 10px;
+     }
      .footer {
         display: flex;
         justify-content: center;
@@ -121,6 +133,51 @@
         margin-bottom: 12px;
         font-size: 18px;
 }
+
+
+    @media screen and (max-width: 768px) {
+        .schedule {
+            padding: 10px;
+        }
+        table {
+            font-size: 14px;
+        }
+        th, td {
+            padding: 5px;
+        }
+        .selected-lessons-alt {
+            font-size: 16px;
+        }
+        #credit-lesson p {
+            font-size: 16px;
+        }
+        .footer {
+            font-size: 14px;
+        }
+    }
+    @media screen and (max-width: 600px){
+        body {
+            padding: 0;
+        }
+        table, tr, td,th{
+            border: none;
+        }
+        .general-info{
+            width: fit-content;
+        }
+        th, td {
+            padding: 3px;
+        }
+        .schedule{
+            width: max-content;
+            padding: 10px 15px;
+        }
+        .schedule h2 {
+            font-size: 18px;
+            padding: 8px;
+        }
+    }
+
     </style>
 </head>
 <body>
@@ -137,46 +194,64 @@
     <div class="footer">
         <p>Coded by <i>Faruk Avcı</i> | İletişim <a href="mailto:faruk.avci@ozu.edu.tr" style="color: #fff;">faruk.avci@ozu.edu.tr</a> </p>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <script>
         
-    document.addEventListener('DOMContentLoaded', function() {
-        const schedules = JSON.parse(localStorage.getItem('schedules'));
+        document.addEventListener('DOMContentLoaded', function() {
+            const schedules = JSON.parse(localStorage.getItem('schedules'));
 
-        if (schedules && schedules.length > 0) {
-            const container = document.getElementById('schedules-container');
-            schedules.forEach(schedule => {
-                const scheduleElement = document.createElement('div');
-                scheduleElement.classList.add('schedule');
-                scheduleElement.innerHTML = `
-                    <h2>Schedule ID: ${schedule.id}</h2>
-                    <div >Sabah yoğunluk oranı: ${schedule.weight_of_morning}</div>
-                    <div>Gün yoğunluk oranı: ${schedule.weight_of_day}</div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Zaman</th>
-                                <th>Pazartesi</th>
-                                <th>Salı</th>
-                                <th>Çarşamba</th>
-                                <th>Perşembe</th>
-                                <th>Cuma</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${generateTableRows(schedule.schedule)}
-                        </tbody>
-                    </table>
-                `;
-                container.appendChild(scheduleElement);
-            });
-        } else {
-            document.getElementById('schedules-container').innerText = 'Herhangi bir ders programı oluşturulamadı.';
-        }
+            if (schedules && schedules.length > 0) {
+                const container = document.getElementById('schedules-container');
+                schedules.forEach((schedule) => {
+                    const scheduleElement = document.createElement('div');
+                    scheduleElement.classList.add('schedule');
+                    scheduleElement.dataset.scheduleId = schedule.id; // Add a data attribute
+                    scheduleElement.innerHTML = `
+                        <h2>Schedule ID: ${schedule.id}</h2>
+                        <button class="download" data-id="${schedule.id}">İndir</button>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Zaman</th>
+                                    <th>Pazartesi</th>
+                                    <th>Salı</th>
+                                    <th>Çarşamba</th>
+                                    <th>Perşembe</th>
+                                    <th>Cuma</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${generateTableRows(schedule.schedule)}
+                            </tbody>
+                        </table>
+                    `;
+                    container.appendChild(scheduleElement);
+                });
 
-        // Fetch and display selected lessons
-        displaySelectedLessons();
-        displayCreditLesson();
-    });
+                // Handle download button clicks
+                document.querySelectorAll('.download').forEach((button) => {
+                    button.addEventListener('click', function() {
+                        const scheduleId = this.getAttribute('data-id');
+                        const scheduleElement = document.querySelector(`.schedule[data-schedule-id="${scheduleId}"]`);
+                        if (scheduleElement) {
+                            html2canvas(scheduleElement).then(canvas => {
+                                const link = document.createElement('a');
+                                link.href = canvas.toDataURL('image/png');
+                                link.download = 'schedule.png';
+                                link.click();
+                            });
+                        }
+                    });
+                });
+            } else {
+                document.getElementById('schedules-container').innerText = 'Herhangi bir ders programı oluşturulamadı.';
+            }
+
+            // Fetch and display selected lessons
+            displaySelectedLessons();
+            displayCreditLesson();
+        });
 
     function generateTableRows(schedule) {
         // Define time slots from 8:40 to 20:40

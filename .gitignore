@@ -9,9 +9,6 @@ __pycache__/
 logs/
 *.log
 
-# Database files
-*.db
-
 # CSV files
 *.csv
 

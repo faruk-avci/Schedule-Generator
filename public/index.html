@@ -47,10 +47,15 @@
         <div class="searchAndDisplayArea">
             <div class="searchArea">
                 <form id="searchForm">
+                    
+                    <div class="text-input">
                     <p>Ders Ara:</p>
                     <input name="courseName" type="text" id="searchInput" placeholder="Ex: BUS101">
+                </div>
+                    <div class="form-buttons">
                     <button type="button" onclick="searchLessons()">Ara</button>
                     <button type="button" onclick="clearResults()">Temizle</button>
+                    </div>
                 </form>
             </div>
             <div class="CreditLesson">
@@ -75,266 +80,220 @@
     </div>
 
     <div class="footer">
-        <p>Coded by <i>Faruk Avcı</i> | İletişim <a href="mailto:faruk.avci@ozu.edu.tr" style="color: #fff;">faruk.avci@ozu.edu.tr</a> </p>
+        <p>Coded by <i>Faruk Avcı</i></p>
+        <p>İletişim <a href="mailto:faruk.avci@ozu.edu.tr" style="color: #fff;">faruk.avci@ozu.edu.tr</a></p>
     </div>
     <script>
         // Search And Display And Clear
-        function searchLessons() {
-            const courseName = document.getElementById('searchInput').value;
+function searchLessons() {
+    const courseName = document.getElementById('searchInput').value.trim();
 
-            if (!courseName) {
-                showToast('Lütfen ders adı girin!', 'error');
-                return;
-            }
+    if (!courseName) {
+        showToast('Lütfen ders adı girin!', 'error');
+        return;
+    }
 
-            fetch('/search', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ courseName })
-            })
-            .then(response => response.json())
-            .then(data => {
-                displayResultCourses(data.courses);
-            })
-            .catch(error => console.error('Error:', error));
-        }
-       
-        function displayResultCourses(courses) {
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = ''; // Clear previous results
-
-            if (courses.length === 0) {
-                resultsDiv.innerHTML = '<p>Sonuç Bulunamadı</p>';
-                return;
-            }
-
-            courses.forEach(course => {
-                const courseDiv = document.createElement('div');
-                courseDiv.classList.add('course-item');
-
-                const courseText = document.createElement('span');
-                courseText.textContent = `${course.course_name} Kredi: ${course.credits} `;
-                courseDiv.appendChild(courseText);
-
-
-                
-                const addButton = document.createElement('button');
-                addButton.textContent = 'Ekle';
-                addButton.onclick = () => addCourse(course);
-                courseDiv.appendChild(addButton);
-
-                
-
-                // TODO
-
-
-                
-                resultsDiv.appendChild(courseDiv);
-            });
-        }
-        
-        function clearResults(){
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = ''; // Clear previous results
-
-            const searchInput = document.getElementById('searchInput');
-            searchInput.value = '';
-        }
-    
-        // Add Remove Course And Display
-        function calculate_total_credit_and_lesson(){
-            const total_credit = document.getElementById('totalCredits');
-            const total_lesson = document.getElementById('totalLessons')
-            fetch('/get-total-credit-lesson', {
-            method: 'GET',
-            headers: {
+    fetch('/search', {
+        method: 'POST',
+        headers: {
             'Content-Type': 'application/json'
-            }
-            })
-            .then(response => response.json())
-            .then(data => {
-            // Set the total credits from the server response
-            total_credit.textContent = data.totalCredits || 0;
-            total_lesson.textContent = data.totalLesson || 0;
-            
-            })
-            .catch(error => console.error('Error:', error));
+        },
+        body: JSON.stringify({ courseName })
+    })
+    .then(response => response.json())
+    .then(data => displayResultCourses(data.courses))
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Arama sırasında bir hata oluştu', 'error');
+    });
+}
+
+function displayResultCourses(courses) {
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.innerHTML = '';
+
+    if (courses.length === 0) {
+        resultsDiv.innerHTML = '<p>Sonuç Bulunamadı</p>';
+        return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    courses.forEach(course => {
+        const courseDiv = document.createElement('div');
+        courseDiv.classList.add('course-item');
+
+        const courseText = document.createElement('span');
+        courseText.textContent = `${course.course_name} Kredi: ${course.credits} `;
+        courseDiv.appendChild(courseText);
+
+        const addButton = document.createElement('button');
+        addButton.textContent = 'Ekle';
+        addButton.onclick = () => addCourse(course);
+        courseDiv.appendChild(addButton);
+
+        fragment.appendChild(courseDiv);
+    });
+
+    resultsDiv.appendChild(fragment);
+}
+
+function clearResults() {
+    document.getElementById('results').innerHTML = '';
+    document.getElementById('searchInput').value = '';
+}
+
+// Add/Remove Course And Display
+function calculateTotalCreditAndLesson() {
+    fetch('/get-total-credit-lesson', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('totalCredits').textContent = data.totalCredits || 0;
+        document.getElementById('totalLessons').textContent = data.totalLesson || 0;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Toplam kredi ve ders hesaplanamadı', 'error');
+    });
+}
+
+function addCourse(course) {
+    fetch('/add-course', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ courseName: course.course_name, credits: course.credits })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast(`${course.course_name} başarıyla eklendi!`, 'added');
+            updateAddedCourses();
+        } else {
+            showToast(data.error || 'Hata', 'error');
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Ders eklenirken bir hata oluştu', 'error');
+    });
+}
 
-        function addCourse(course) {
-            fetch('/add-course', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    courseName: course.course_name,
-                    credits: course.credits
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast(`${course.course_name} başarıyla eklendi!`, 'added');
-                } else {
-                    showToast(data.error || 'Hata', 'error');
-                }
-            })
-            .catch(error => console.error('Error:', error));
-            fetch('/get-added-courses',{
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                displayAddedCourses(data.courses);
-            })
-            .catch(error => console.error('Error:', error));
-            
+function removeCourse(course) {
+    fetch('/remove-course', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ courseName: course.course_name, credits: course.credits })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast(`${course.course_name} başarıyla çıkarıldı!`, 'error');
+            updateAddedCourses();
+        } else {
+            showToast(data.error || 'Hata.', 'error');
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Ders çıkarılırken bir hata oluştu', 'error');
+    });
+}
 
-        function removeCourse(course){
-            fetch('/remove-course', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    courseName: course.course_name,
-                    credits: course.credits
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast(`${course.course_name} başarıyla çıkartıldı!`, 'error');
-                } else {
-                    showToast(data.error || 'Hata.', 'error');
-                }
-            })
-            .catch(error => console.error('Error:', error));
-            fetch('/get-added-courses',{
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                displayAddedCourses(data.courses);
-            })
-            .catch(error => console.error('Error:', error));
-        }
-        
-        function displayAddedCourses(courses) {
-            calculate_total_credit_and_lesson()
-            const addedCoursesDiv = document.getElementById('addedCourses');
-            addedCoursesDiv.innerHTML = ''; // Clear previous results
+function updateAddedCourses() {
+    fetch('/get-added-courses', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => displayAddedCourses(data.courses))
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Eklenen dersler getirilemedi', 'error');
+    });
+}
 
-            if (courses.length === 0) {
-                addedCoursesDiv.innerHTML = '<p>No courses added</p>';
-                return;
-            }
+function displayAddedCourses(courses) {
+    calculateTotalCreditAndLesson();
+    const addedCoursesDiv = document.getElementById('addedCourses');
+    addedCoursesDiv.innerHTML = '';
 
-            courses.forEach(course => {
-                // Create a container div for each course
-                const courseDiv = document.createElement('div');
-                courseDiv.classList.add('course-item');
+    if (courses.length === 0) {
+        addedCoursesDiv.innerHTML = '<p>Hiç ders eklenmemiş</p>';
+        return;
+    }
 
-                // Create text content for the course
-                const courseText = document.createElement('span');
-                courseText.textContent = `${course.course_name} Kredi: ${course.credits} `;
-                courseDiv.appendChild(courseText);
+    const fragment = document.createDocumentFragment();
 
-                // Create the "Add" button
-                const addButton = document.createElement('button');
-                addButton.textContent = 'Kaldır';
-                addButton.onclick = () => removeCourse(course);
-                courseDiv.appendChild(addButton);
-                
-                
-                addedCoursesDiv.appendChild(courseDiv);
-            });
-        }
+    courses.forEach(course => {
+        const courseDiv = document.createElement('div');
+        courseDiv.classList.add('course-item');
 
-        function showToast(message, type) {
-            // Create toast element
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
+        const courseText = document.createElement('span');
+        courseText.textContent = `${course.course_name} Kredi: ${course.credits} `;
+        courseDiv.appendChild(courseText);
 
-            // Append to toast container
-            const container = document.getElementById('toastContainer');
-            container.appendChild(toast);
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'Kaldır';
+        removeButton.onclick = () => removeCourse(course);
+        courseDiv.appendChild(removeButton);
 
-            // Show toast
-            setTimeout(() => {
-                toast.classList.add('show');
-            }, 10); // Delay to trigger transition
+        fragment.appendChild(courseDiv);
+    });
 
-            // Hide toast after a delay
-            setTimeout(() => {
-                toast.classList.add('fadeOut');
-                setTimeout(() => {
-                    container.removeChild(toast);
-                }, 400); // Match the duration of fadeOut transition
-            }, 3000); // Duration for which the toast is visible
-        }
+    addedCoursesDiv.appendChild(fragment);
+}
 
-        window.onload = function() {
-            fetch('/get-added-courses',{
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                displayAddedCourses(data.courses);
-            })
-            .catch(error => console.error('Error:', error));
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
 
-            calculate_total_credit_and_lesson(); // Update total credits and lessons
+    const container = document.getElementById('toastContainer');
+    container.appendChild(toast);
 
-    };
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 10);
 
-        function generateSchedules() {
-            fetch('/get-added-courses', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                const addedCourses = data.courses;
-                fetch('/generate-schedules', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        lessons: addedCourses.map(course => course.course_name)
-                    })
-                })
-                .then(response => response.json())
-                .then(schedules => {
-                    // Store schedules in local storage
-                    localStorage.setItem('schedules', JSON.stringify(schedules));
-                    // Redirect to the schedules page in new tab
-                    window.open('/schedules.html');
-                })
-                .catch(error => {
-                    console.error('Error generating schedules:', error);
-                    showToast('Error generating schedules', 'error');
-                });
-            })
-            .catch(error => console.error('Error fetching added courses:', error));
-        }
+    setTimeout(() => {
+        toast.classList.add('fadeOut');
+        setTimeout(() => container.removeChild(toast), 400);
+    }, 3000);
+}
+
+window.onload = function() {
+    updateAddedCourses();
+    calculateTotalCreditAndLesson();
+};
+
+function generateSchedules() {
+    fetch('/get-added-courses', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const addedCourses = data.courses;
+        return fetch('/generate-schedules', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lessons: addedCourses.map(course => course.course_name) })
+        });
+    })
+    .then(response => response.json())
+    .then(schedules => {
+        localStorage.setItem('schedules', JSON.stringify(schedules));
+        window.location.href = '/schedules.html';
+    })
+    .catch(error => {
+        console.error('Error generating schedules:', error);
+        showToast('Error generating schedules', 'error');
+    });
+}
+
     </script>
 </body>
 

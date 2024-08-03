@@ -260,3 +260,139 @@ padding: 0 10px;
     margin: 12px;
     font-size: 18px;
 }
+
+
+
+/* Responsive */
+@media screen and (max-width: 1250px) {
+
+    *{
+        font-size: 18px !important;
+    }
+    body{
+        padding: 0;
+        margin: 0;
+    }
+    
+    .promotion h1{
+        font-size: 45px !important; 
+        text-align: center;   
+    }
+    .two_boxes{
+        flex-direction: column;
+    }
+    .two_boxes>div {
+        margin: 10px 12px;  
+        padding: 25px;
+    }
+    .two_boxes>div>ul {
+        padding-left: 15px;
+    }
+    #box_1, #box_2 {
+        width: auto;
+    }
+    #how_it_works {
+        margin: 10px 12px;
+    }   
+
+    .searchAndDisplayArea{
+        flex-direction: column;
+        background-image: none;
+        padding: 0;
+    }
+    .searchArea, .CreditLesson{
+        width: 100%;
+        justify-content: center;
+        flex-direction: column;
+        background-image: linear-gradient(to right, #ff5f1a, #ff8550);
+        margin: 10px 12px;
+        padding: 10px 0;
+
+        border-radius: 30px;
+
+    }
+    .form-buttons{
+        display: flex;
+        justify-content: center;
+        margin-top: 5px;
+    }
+    .searchArea p{
+        padding: 0 2px;
+    }
+    .searchArea button {
+        margin: 0 0 0 6px;
+    }
+    .footer{
+        flex-direction: column;
+    }
+    .footer p{
+        margin: 7px 0;
+    }
+@media screen and (max-width: 768px){
+
+    .promotion h1{
+        font-size: 35px !important; 
+        text-align: center;   
+    }
+    *{
+        font-size: 16px !important;
+    }
+
+    .resultAndAddeds{
+        flex-direction: column;
+        width: auto;
+    }
+    #results, #addedCourses{
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+
+
+    #how_it_works {
+        margin: 10px 7px;
+        padding: 25px;
+    }
+    .two_boxes>div {
+        margin: 10px 7px;  
+        padding: 25px;
+    }
+
+    .searchAndDisplayArea{
+        margin: 10px 7px;
+    }
+    .searchArea, .CreditLesson{
+        margin: 10px 7px;
+    }
+
+    .searchArea input[type="text"], .searchArea button {
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    .CreditLesson>div{
+        text-align: center;
+    }
+    .CreditLesson>div>h3{
+        margin: 4px 0;
+    }
+    
+
+    .CreditLesson>div>button {
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    .course-item{
+        padding: 10px 12px;
+        margin: 10px 0;
+        font-size: 16px;
+    }
+
+    .resultAndAddeds{
+        margin: 10px 7px;
+    }
+
+}
+} 
