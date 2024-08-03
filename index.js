@@ -11,7 +11,7 @@ const port = 5000;
 app.use(bodyParser.json());
 app.use(express.static('public')); 
 app.use(session({
-    secret: 'K47euPQfTHUBfR2f7UJBso/EgwL38cJ2Ay4YCTaKnq+8cTv9TOsry59zKo5i7ujAAXspy3ipuVtPiZrSotysHw==',
+    secret: 'secret-key',
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false } // Set to true if using HTTPS

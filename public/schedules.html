@@ -25,6 +25,7 @@
             border-radius: 30px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             color: #fff;
+            
         }
         .schedule h2 {
             margin-top: 0;
@@ -62,12 +63,18 @@
             font-size: 14px;
             color: #555;
         }
-        .general-info{
-            border-radius: 25px;
-            padding: 20px 20px;
-            background-image: linear-gradient(to right, #009aca, #19d2fd);
-            margin-bottom: 30px;
-        }
+        .general-info {
+    border-radius: 25px;
+    padding: 20px;
+    background-image: linear-gradient(to right, #009aca, #19d2fd);
+    margin-bottom: 30px;
+    width: max-content;
+}
+
+.general-info p {
+    white-space: normal; /* Allow text to wrap to the next line */
+    overflow: visible; /* Ensure overflow text is visible */
+}
         #selected-lessons{
             display: flex !important;
             align-items: center;            
@@ -123,15 +130,15 @@
         margin-top: 10px;
      }
      .footer {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-image: linear-gradient(to right, #011320, #04262e);
-        color: #ffffff;
-        padding: 20px;
-        border-radius: 30px;
-        margin-bottom: 12px;
-        font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: linear-gradient(to right, #01121f, #04262e);
+    color: #ffffff;
+    padding: 20px;
+    border-radius: 30px;
+    margin: 12px;
+    font-size: 18px;
 }
 
 
@@ -152,7 +159,11 @@
             font-size: 16px;
         }
         .footer {
-            font-size: 14px;
+            font-size: 16px;
+            flex-direction: column;
+        }
+        .footer p {
+            margin: 7px 0;
         }
     }
     @media screen and (max-width: 600px){
@@ -160,10 +171,7 @@
             padding: 0;
         }
         table, tr, td,th{
-            border: none;
-        }
-        .general-info{
-            width: fit-content;
+            border: 0.5px  solid #fff;
         }
         th, td {
             padding: 3px;
@@ -190,9 +198,11 @@
         <div id="credit-lesson"></div>
     </div>
 
-    <div id="schedules-container"></div>
+    <div id="schedules-container" style="color: #fff;"></div>
+
     <div class="footer">
-        <p>Coded by <i>Faruk Avcı</i> | İletişim <a href="mailto:faruk.avci@ozu.edu.tr" style="color: #fff;">faruk.avci@ozu.edu.tr</a> </p>
+        <p>Coded by <i>Faruk Avcı</i></p>
+        <p>İletişim <a href="mailto:faruk.avci@ozu.edu.tr" style="color: #fff;">faruk.avci@ozu.edu.tr</a></p>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -213,7 +223,7 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Zaman</th>
+                                    <th></th>
                                     <th>Pazartesi</th>
                                     <th>Salı</th>
                                     <th>Çarşamba</th>
