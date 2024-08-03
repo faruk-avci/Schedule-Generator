@@ -4,7 +4,8 @@
   "description": "ilk deneme",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": "echo 'No build step specified'"
   },
   "author": "aseris",
   "license": "ISC",
