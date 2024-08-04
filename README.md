@@ -34,7 +34,7 @@ The Schedule Generator is a Node.js application that allows users to manage and 
 
 Clone the repository and run:
 ```bash
-npm intall
+npm install
 ```
 and then run this:
 ```bash
