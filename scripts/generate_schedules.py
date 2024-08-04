@@ -2,7 +2,7 @@ import sqlite3
 import numpy as np
 import json
 import sys
-
+import os
 selected_lessons = [ "CS105","MATH104" , "IE101"]
 
 lesson_id = {
@@ -15,8 +15,8 @@ id_lesson = {
 def get_info_from_db(lessons, lesson_id):
     all_courses = {}
     must_count_dict = {}
-
-    with sqlite3.connect('courses.db') as connection:
+    db_path = os.path.join(os.path.dirname(__file__), '../data/courses.db')
+    with sqlite3.connect(db_path) as connection:
         cursor = connection.cursor()
         for lesson in lessons:
             cursor.execute('''

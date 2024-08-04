@@ -17,7 +17,7 @@ app.use(session({
     cookie: { secure: false } // Set to true if using HTTPS
   }));
 
-const db = new sqlite3.Database('courses.db', (err) => {
+const db = new sqlite3.Database('data/courses.db', (err) => {
     if (err) {
         console.error('Error opening database:', err.message);
     }
@@ -126,7 +126,7 @@ app.post('/generate-schedules', (req, res) => {
     const lessons = req.session.courses.map(course => `${course.course_name}`);
     const lessonsArgs = lessons.join(' ');
 
-    exec(`python3 generate_schedules.py "${lessonsArgs}"`, (error, stdout, stderr) => {
+    exec(`python3 scripts/generate_schedules.py "${lessonsArgs}"`, (error, stdout, stderr) => {
         if (error) {
             console.error(`Error executing script: ${error}`);
             res.status(500).send('Error generating schedules');

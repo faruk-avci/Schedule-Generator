@@ -1,5 +1,5 @@
 import csv
-from course import Course
+from scripts.course import Course
 import sqlite3
     
 def add_to_db(data):
